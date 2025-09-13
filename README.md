@@ -1,8 +1,8 @@
-# 🤖 Classificador Inteligente de Emails
+# Classificador Inteligente de Emails
 
 Uma aplicação web que utiliza inteligência artificial para classificar emails automaticamente e sugerir respostas apropriadas, economizando tempo da equipe.
 
-## 📋 Funcionalidades
+## Funcionalidades
 
 - **Classificação Automática**: Categoriza emails como "Produtivo" ou "Improdutivo"
 - **Respostas Inteligentes**: Gera sugestões de resposta baseadas na categoria
@@ -10,7 +10,7 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
 - **Interface Intuitiva**: Design moderno e responsivo
 - **Análise Detalhada**: Mostra confiança da classificação e texto processado
 
-## 🚀 Como Executar
+## Como Executar
 
 ### Pré-requisitos
 
@@ -48,7 +48,7 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
    - Duplo clique no arquivo `index.html`
    - Ou use um servidor local como Live Server (VS Code)
 
-## 💡 Como Usar
+## Tutorial
 
 1. **Acesse a aplicação** no navegador
 2. **Escolha o método de entrada:**
@@ -65,7 +65,7 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
    - Editar resposta
    - Nova análise
 
-## 🔧 Configuração Avançada
+## Configurações de ambiente
 
 ### Variáveis de Ambiente
 
@@ -88,7 +88,7 @@ DEFAULT_CONFIDENCE_THRESHOLD=0.7
 - **Respostas**: Personalize os templates de resposta na função `generate_response()`
 - **Interface**: Customize cores e estilos no arquivo `styles.css`
 
-## 📊 Categorias de Classificação
+## Categorização
 
 ### Produtivo
 Emails que requerem ação ou resposta:
@@ -104,7 +104,7 @@ Emails que não necessitam ação imediata:
 - Feedback positivo
 - Comunicados informativos
 
-## 🧠 Tecnologias Utilizadas
+## Stacks
 
 ### Backend
 - **Python 3.8+**
@@ -125,7 +125,7 @@ Emails que não necessitam ação imediata:
 - **Text Processing** - Pré-processamento de texto
 - **Keyword Matching** - Análise por palavras-chave
 
-## 🔍 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 teste-autoU/
@@ -140,7 +140,7 @@ teste-autoU/
 └── README.md             # Documentação
 ```
 
-## 🚨 Solução de Problemas
+## Possível solução
 
 ### Erro: CORS
 - Verifique se o Flask-CORS está instalado
@@ -150,7 +150,7 @@ teste-autoU/
 - Verifique se o PyPDF2 está instalado
 - Teste com um arquivo PDF simples
 
-## 📝 Licença
+## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 # desafio-autou
