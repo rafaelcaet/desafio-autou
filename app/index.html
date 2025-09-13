@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificador de Emails - Rafael Caetano</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-top">
+                    <h1>Organize seus e-mails com eficiência</h1>
+                    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+                        <svg class="theme-toggle-icon sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="theme-toggle-icon moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <p>Plataforma baseada em IA que classifica mensagens automaticamente e sugere respostas adequadas.</p>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="upload-section" id="analysis-section">
+                <h2>Adicione um email para análise</h2>
+                
+                <form id="emailForm" enctype="multipart/form-data">
+                    <!-- Txt -->
+                    <div class="form-group">
+                        <label for="emailText">Conteúdo do email</label>
+                        <textarea 
+                            id="emailText" 
+                            name="text" 
+                            placeholder="Ex: Olá, gostaria de mais informações sobre os planos disponíveis."
+                            rows="8"
+                            maxlength="5000"
+                        ></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/5000 caracteres
+                        </div>
+                    </div>
+
+                    <!-- separator -->
+                    <div class="separator">
+                        <div class="separator-line"></div>
+                        <span class="separator-text">OU</span>
+                        <div class="separator-line"></div>
+                    </div>
+
+                    <!-- Files -->
+                    <div class="form-group">
+                        <label for="emailFile">Arquivo de email</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <input 
+                                type="file" 
+                                id="emailFile" 
+                                name="file" 
+                                accept=".txt,.pdf"
+                                hidden
+                            >
+                            <div class="file-upload-content">
+                                <p>Clique aqui ou arraste um arquivo</p>
+                                <small>Formatos: .txt ou .pdf (até 10MB)</small>
+                            </div>
+                            <div class="file-info" id="fileInfo" style="display: none;">
+                                <span class="file-name"></span>
+                                <button type="button" class="remove-file" onclick="removeFile()">
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span>Analisar Email</span>
+                        <div class="loading-spinner" style="display: none;">
+                            <div class="spinner-icon"></div>
+                            <span>Analisando...</span>
+                        </div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2>Resultados da análise</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card classification-card">
+                        <div class="card-header">
+                            <h3>Categoria do email</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="classification-result">
+                                <div class="category" id="categoryResult">
+                                    <span class="category-badge"></span>
+                                </div>
+                                <div class="confidence">
+                                    <label>Nível de certeza:</label>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" id="confidenceFill"></div>
+                                    </div>
+                                    <span id="confidenceValue">0%</span>
+                                </div>
+                            </div>
+                            <div class="classification-details" id="classificationDetails">
+                                <!-- deatils report -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card response-card">
+                        <div class="card-header">
+                            <h3>Sugestão de resposta</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="response-text" id="responseText">
+                                <!-- response suggestion -->
+                            </div>
+                            <div class="response-actions">
+                                <button class="action-btn copy-btn" onclick="copyResponse()">Copiar</button>
+                                <button class="action-btn edit-btn" onclick="editResponse()">Editar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-details">
+                    <div class="detail-card">
+                        <h4>Texto analisado</h4>
+                        <div class="processed-text" id="processedText">
+                        </div>
+                    </div>
+                    
+                    <!-- separato -->
+                    <div class="separator">
+                        <div class="separator-line"></div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h4>Detalhes da análise</h4>
+                        <div class="analysis-info" id="analysisInfo">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="new-analysis-btn" onclick="resetForm()">
+                    Nova análise
+                </button>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 - made by <a href="https://rc-portfolio-ebon.vercel.app/" target="_blank">Rafael Caetano</a></p>
+        </footer>
+    </div>
+
+    <!-- Modal edit response-->
+    <div class="modal" id="editModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar resposta</h3>
+                <button class="close-modal" onclick="closeEditModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="editResponseText" rows="6"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEditedResponse()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
