@@ -20,9 +20,9 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
 
 ### Backend (Python Flask)
 
-1. **Navegue até a pasta backend:**
+1. **Navegue até a pasta server:**
    ```bash
-   cd backend
+   cd server
    ```
 
 2. **Instale as dependências:**
@@ -39,9 +39,9 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
 
 ### Frontend
 
-1. **Navegue até a pasta frontend:**
+1. **Navegue até a pasta app:**
    ```bash
-   cd frontend
+   cd app
    ```
 
 2. **Abra o arquivo index.html no navegador:**
@@ -69,7 +69,7 @@ Uma aplicação web que utiliza inteligência artificial para classificar emails
 
 ### Variáveis de Ambiente
 
-Crie um arquivo `.env` na pasta backend para configurações opcionais:
+Crie um arquivo `.env` na pasta server para configurações opcionais:
 
 ```env
 # OpenAI API Key (para respostas mais avançadas)
