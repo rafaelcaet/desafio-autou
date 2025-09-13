@@ -140,7 +140,7 @@ teste-autoU/
 └── README.md             # Documentação
 ```
 
-## Possível solução
+## Possíveis soluções para erros
 
 ### Erro: CORS
 - Verifique se o Flask-CORS está instalado
