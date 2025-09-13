@@ -30,8 +30,13 @@ except Exception as e:
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../app', static_url_path='')
 CORS(app)
+
+# Rota para servir o frontend
+@app.route('/')
+def serve_frontend():
+    return app.send_static_file('index.html')
 
 # Config OpenAI
 openai_client = None
@@ -51,6 +56,38 @@ class AIEmailService:
         self.client = openai_client
         if not self.client:
             raise ValueError("OpenAI client não configurado. Verifique a OPENAI_API_KEY.")
+    
+    def _clean_and_parse_json(self, content):
+        """Limpa e tenta parsear JSON da resposta da IA"""
+        import re
+        
+        # Remover markdown e caracteres extras
+        content = content.replace('```json', '').replace('```', '').strip()
+        
+        # Remover possível texto antes e depois do JSON
+        json_match = re.search(r'\{.*\}', content, re.DOTALL)
+        if json_match:
+            content = json_match.group(0)
+        
+        try:
+            result = json.loads(content)
+            
+            # Validar estrutura esperada
+            if not all(key in result for key in ['category', 'confidence', 'reasoning']):
+                raise ValueError("JSON não contém todos os campos necessários")
+            
+            # Validar valores
+            if result['category'] not in ['Produtivo', 'Improdutivo']:
+                result['category'] = 'Produtivo'
+            
+            if not isinstance(result['confidence'], (int, float)) or not 0 <= result['confidence'] <= 1:
+                result['confidence'] = 0.8
+            
+            return result
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"Erro ao parsear JSON: {e}")
+            return None
         
     def classify_email(self, text):
         """Classificar email
@@ -70,39 +107,58 @@ class AIEmailService:
 
             Email: "{text}"
 
-            Responda em formato JSON com:
-            - category: "Produtivo" ou "Improdutivo"
-            - confidence: número entre 0 e 1
-            - reasoning: breve explicação da classificação
+            IMPORTANTE: Responda APENAS com um JSON válido no formato exato:
+            {{
+                "category": "Produtivo",
+                "confidence": 0.9,
+                "reasoning": "Sua explicação aqui"
+            }}
+            
+            NÃO adicione texto antes ou depois do JSON. NÃO use markdown.
             """
             
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "Você é um assistente especializado em classificar emails em português brasileiro. Responda APENAS com JSON válido, sem texto adicional."},
+                    {"role": "system", "content": "Você é um classificador de emails. SEMPRE responda com JSON válido no formato: {\"category\": \"Produtivo\", \"confidence\": 0.9, \"reasoning\": \"explicação\"}. NUNCA adicione texto extra."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
-                max_tokens=400
+                temperature=0.3,
+                max_tokens=200
             )
             
             content = response.choices[0].message.content.strip()
+            logger.warning(f"Resposta bruta da IA: {content}")
             
+            # Usar função auxiliar para limpar e parsear JSON
+            result = self._clean_and_parse_json(content)
             
-            try:
-                result = json.loads(content) # json da saida
-            except json.JSONDecodeError:
+            # Se falhou o parsing, usar fallback
+            if result is None:
+                import re
+                logger.warning(f"Fallback ativado para conteúdo: {content}")
+                
                 category = "Produtivo"
                 confidence = 0.7
-                reasoning = content
+                reasoning = content[:200] if content else "Classificação automática"
                 
-                if "improdutivo" in content.lower():
+                # Tentar identificar categoria no texto
+                if any(word in content.lower() for word in ["improdutivo", "não requer", "agradecimento", "parabéns"]):
                     category = "Improdutivo"
+                
+                # Tentar extrair confiança se mencionada
+                confidence_match = re.search(r'confidence["\s:]+([0-9.]+)', content.lower())
+                if confidence_match:
+                    try:
+                        confidence = float(confidence_match.group(1))
+                        confidence = max(0, min(1, confidence))  # Garantir entre 0 e 1
+                    except:
+                        pass
                 
                 result = {
                     "category": category,
                     "confidence": confidence,
-                    "reasoning": reasoning[:200]
+                    "reasoning": reasoning
                 }
             
             return {
@@ -254,7 +310,7 @@ def classify_email():
             else:
                 return jsonify({"error": "Formato de arquivo não suportado. Use .txt ou .pdf"}), 400
         
-        # verifica se é json e se tem texot
+        # verifica se é json e se tem texto
         elif request.is_json and 'text' in request.json:
             email_text = request.json['text']
         
@@ -301,4 +357,6 @@ def classify_email():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('RAILWAY_ENVIRONMENT') != 'production'
+    app.run(debug=debug, host='0.0.0.0', port=port)

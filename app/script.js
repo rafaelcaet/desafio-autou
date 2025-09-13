@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:5000';
+// Detecta automaticamente se é local ou Railway
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000' 
+    : window.location.origin;
 
 const emailForm = document.getElementById('emailForm');
 const emailText = document.getElementById('emailText');
